@@ -22,7 +22,7 @@ foreachStructMember(test, [] (auto& value) {
 ```
 An aggregate initialisable class has no private or protected member variables, no virtual methods, no base classes with virtual methods and no user declared constructors. If the conditions are not met, a static assert should fail with a suggestion to check if it is aggregate initialisable.
 
-Here is a [link](https://godbolt.org/z/bb3Yo58h4) to Compiler Explorer.
+Here is a [link](https://godbolt.org/z/4zvGEedeK) to Compiler Explorer.
 
 ## Limitations
 * Doesn't allow learning the names of the member variables (Boost.PFR allows that with C++20)
