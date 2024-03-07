@@ -2,6 +2,7 @@
 #define FOREACH_STRUCT_MEMBER_HPP
 
 #include <cstddef>
+#include <type_traits>
 
 namespace Detail {
 #if defined(__GNUC__) && !defined(__llvm__) && !defined(__INTEL_COMPILER)
@@ -13,8 +14,8 @@ namespace Detail {
 template <typename Parent, int Index, typename Visitor>
 struct StructInfoGetter {
 	friend void callOnMember(StructInfoGetter<Parent, Index, Visitor>, Parent& instance, std::ptrdiff_t offset, const Visitor& visitor);
-	friend constexpr int getSize(StructInfoGetter<Parent, Index, Visitor>);
-	friend constexpr int getAlignment(StructInfoGetter<Parent, Index, Visitor>);
+	friend constexpr std::size_t getSize(StructInfoGetter<Parent, Index, Visitor>);
+	friend constexpr std::size_t getAlignment(StructInfoGetter<Parent, Index, Visitor>);
 };
 
 // Instantiating this template will define the forward-declared functions
@@ -23,10 +24,10 @@ struct StructInfoSaver {
 	friend void callOnMember(StructInfoGetter<Parent, ChildIndex, Visitor>, Parent& instance, std::ptrdiff_t offset, const Visitor& visitor) {
 		visitor(*reinterpret_cast<ChildType*>(reinterpret_cast<char*>(&instance) + offset));
 	}
-	friend constexpr int getSize(StructInfoGetter<Parent, ChildIndex, Visitor>) {
+	friend constexpr std::size_t getSize(StructInfoGetter<Parent, ChildIndex, Visitor>) {
 		return sizeof(ChildType);
 	}
-	friend constexpr int getAlignment(StructInfoGetter<Parent, ChildIndex, Visitor>) {
+	friend constexpr std::size_t getAlignment(StructInfoGetter<Parent, ChildIndex, Visitor>) {
 		return alignof(ChildType);
 	}
 	constexpr static bool instantiated = true;
@@ -74,7 +75,7 @@ void foreachMemberRange(T& object, const Visitor& callee) {
 		// Check if the size is as expected when reaching the end
 		constexpr std::size_t expectedSize = (Offset % MaxAlign == 0) ? Offset : Offset - (Offset % MaxAlign) + MaxAlign;
 		constexpr std::size_t expectedSizeCorrected = (expectedSize > 0) ? expectedSize : 1;
-		static_assert(sizeof(T) == expectedSizeCorrected, "Reflection failed, make sure the type is aggregate initialisable");
+		static_assert(sizeof(T) == expectedSizeCorrected, "Reflection failed");
 	}
 }
 
@@ -85,8 +86,9 @@ void foreachMemberRange(T& object, const Visitor& callee) {
 
 template <typename T, typename Visitor>
 void foreachStructMember(T& object, const Visitor& callee) {
+	static_assert(std::is_aggregate_v<T>, "Can't reflect non-aggregate types");
 	constexpr std::size_t size = Detail::MemberCounter<T, T*, Visitor>::get();
-	static_assert(size != -1, "Reflection failed, make sure the type is aggregate initialisable");
+	static_assert(size != -1, "Reflection failed");
 	Detail::foreachMemberRange<0, size, 0, 1>(object, callee);
 }
 
