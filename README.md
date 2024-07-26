@@ -1,15 +1,26 @@
-# foreachStructMember
+# foreachStructMember with support of nested structures
 If you need some reflection in C++ but Boost.PFR is too much of a heavy dependency, this is a single short header that you can easily copypaste anywhere.
 
 ## Usage
 If a struct is aggregate initialisable, the `foreachStructMember` allows calling a generic lambda on each of its member variables. The labda will be instantiated to the right type for each member variable. If there are any parent classes, the lambda will be called on them before being called on member variables.
 
 ```C++
+struct Inner2Struct {
+	int x = 10;
+	double y = 20.5;
+};
+
+struct InnerStruct {
+	int x = 2137;
+	double y = 3.14;
+	Inner2Struct c;
+};
+
 struct TestStruct {
 	int a = 3;
 	uint16_t b = 2;
 	char c = 'c';
-	int64_t d = 853925892038;
+	InnerStruct d;
 	std::string e = "This really works";
 	double f = 1.43;
 	float g = 2.716;

@@ -22,7 +22,12 @@ struct StructInfoGetter {
 template <typename Parent, int ChildIndex, typename Visitor, typename ChildType>
 struct StructInfoSaver {
 	friend void callOnMember(StructInfoGetter<Parent, ChildIndex, Visitor>, Parent& instance, std::ptrdiff_t offset, const Visitor& visitor) {
-		visitor(*reinterpret_cast<ChildType*>(reinterpret_cast<char*>(&instance) + offset));
+		ChildType& member = *reinterpret_cast<ChildType*>(reinterpret_cast<char*>(&instance) + offset);
+		if constexpr (std::is_aggregate_v<ChildType>) {
+			foreachStructMember(member, visitor);
+		} else {
+			visitor(member);
+		}
 	}
 	friend constexpr std::size_t getSize(StructInfoGetter<Parent, ChildIndex, Visitor>) {
 		return sizeof(ChildType);
