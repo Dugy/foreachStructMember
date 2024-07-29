@@ -27,4 +27,4 @@ Here is a [link](https://godbolt.org/z/4zvGEedeK) to Compiler Explorer.
 ## Limitations
 * Doesn't allow learning the names of the member variables (Boost.PFR allows that with C++20)
 * Requires C++17 (doable in C++14, but the code would be longer)
-* Works only with GCC and Clang (the principle works with MSVC, but I wasn't able to get this code to work there)
+* Requires the `/permissive-` compiler flag on MSVC
